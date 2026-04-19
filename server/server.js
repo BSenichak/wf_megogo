@@ -69,4 +69,16 @@ app.get("/movies/:id", (req, res, next)=> {
     })
 }, getMovie)
 
+app.get("/movies", (req, res)=>{
+    let query = "SELECT * FROM movie"
+    db.query(query, (err, result)=> {
+        if(err){
+            console.error("SQL error", err)
+            res.status(500).send("Internal Server error")
+        }else{
+            res.json(result)
+        }
+    })
+})
+
 app.listen(3000, ()=> console.log("Server started!"))

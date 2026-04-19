@@ -3,6 +3,7 @@ import db from "./db.js"
 import path from "path"
 import fs from "fs"
 import { fileURLToPath } from "url"
+import cors from "cors"
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
 
@@ -11,6 +12,11 @@ const app = express()
 app.use(express.json())
 app.use(express.urlencoded({extended: true}))
 app.use(express.static("public"))
+app.use(cors({
+    origin: "*",
+    headers: "*",
+    methods: "*"
+}))
 
 app.get("/", (req, res)=>{
     res.end("Hello from express!")
@@ -71,13 +77,70 @@ app.get("/movies/:id", (req, res, next)=> {
 
 app.get("/movies", (req, res)=>{
     let query = "SELECT * FROM movie"
-    db.query(query, (err, result)=> {
+
+    if(req.query.sort){
+        if(["id", "title", "genre"].includes(req.query.sort)){
+            query += " ORDER BY " + req.query.sort
+        }else{
+            return res.status(400).send("Invalid sort field")
+        }
+    }
+
+    if(req.query.sortType){
+        const sortType = req.query.sortType.toUpperCase();
+        if(["ASC", "DESC"].includes(sortType)){
+            query += " " + sortType
+        } else {
+            return res.status(400).send("Invalid sort type!")
+        }
+    }
+    
+    let queryParams = []
+
+    if(req.query.limit){
+        const limit = parseInt(req.query.limit, 10)
+        if(!isNaN(limit) && limit > 0){
+            query += " LIMIT ?"
+            queryParams.push(limit)
+        }else{
+            return res.status(400).send("Invalid limit!")
+        }
+    }
+    if(req.query.offset){
+        const offset = parseInt(req.query.offset, 10)
+        if(!isNaN(offset) && offset > 0){
+            query += " OFFSET ?"
+            queryParams.push(offset)
+        }else{
+            return res.status(400).send("Invalid offset!")
+        }
+    }
+   
+
+    db.query(query, queryParams, (err, result)=> {
         if(err){
             console.error("SQL error", err)
             res.status(500).send("Internal Server error")
         }else{
             res.json(result)
         }
+    })
+})
+
+
+app.get("/search", (req, res)=>{
+    if(!req.query.title){
+        return res.status(400).send("Title parameter is required")
+    }
+    const title = `%${req.query.title}%`
+    const query = "SELECT * FROM movie WHERE title LIKE ? LIMIT 10"
+
+    db.query(query, [title], (err, result)=>{
+        if(err){
+            console.error("SQL error: ", err)
+            return res.status(500).send("INTERNAL SERVER ERROR!")
+        }
+        res.json(result)
     })
 })
 

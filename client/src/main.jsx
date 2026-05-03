@@ -5,10 +5,24 @@ import { BrowserRouter } from "react-router";
 import { Provider } from "react-redux"
 import store from "./store/store.js"
 
+import { ThemeProvider } from "@mui/material";
+import { lightTheme, darkTheme } from "./styles/theme.js"; 
+
+import { useSelector } from "react-redux";
+
 createRoot(document.getElementById("root")).render(
     <BrowserRouter>
       <Provider store={store}>
-        <App />
-        </Provider>
+          <Wrapper/>
+      </Provider>
     </BrowserRouter>,
 );
+
+function Wrapper(){
+  let themeName = useSelector(state=>state.theme.theme)
+  return (
+    <ThemeProvider theme={themeName == "light"? lightTheme : darkTheme}>
+      <App/>
+    </ThemeProvider>
+  )
+}

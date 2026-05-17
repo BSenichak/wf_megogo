@@ -10,6 +10,8 @@ import { lightTheme, darkTheme } from "./styles/theme.js";
 
 import { useSelector } from "react-redux";
 
+import "./i18next.js"
+
 createRoot(document.getElementById("root")).render(
     <BrowserRouter>
       <Provider store={store}>

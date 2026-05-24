@@ -20,7 +20,7 @@ export default function Movie() {
     return (
         <Wrapper>
             <InfoBar>
-                <CardMedia image="http://localhost:3000/poster.jpg" sx={{aspectRatio: "3/4"}}/>
+                <CardMedia image={(import.meta.env.DEV ? "http://localhost:3000/": "/") + movie.poster_url} sx={{aspectRatio: "3/4"}}/>
                 <Typography variant="body1">
                     {t("release_data")}: {new Date(movie.release_data).toLocaleDateString()}
                 </Typography>
@@ -39,10 +39,10 @@ export default function Movie() {
                     type: "video",
                     sources: [
                         {
-                            src: `http://localhost:3000/movies/${id}`,
+                            src: (import.meta.env.DEV ? "http://localhost:3000": "/") + `movies/${id}`,
                         },
                     ],
-                    poster: "http://localhost:3000/posters/poster.jpg",
+                    poster: (import.meta.env.DEV ? "http://localhost:3000": "/") +"posters/poster.jpg",
                 }}
                 options={{
                     controls: [

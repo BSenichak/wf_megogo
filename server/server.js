@@ -157,4 +157,8 @@ app.get("/movieinfo/:id", (req, res)=>{
     })
 })
 
+app.get(/^(?!\/(?:movies|search|movieinfo)).*$/, (req, res)=>{
+    res.sendFile(path.join(__dirname, "public", "index.html"))
+})
+
 app.listen(3000, ()=> console.log("Server started!"))
